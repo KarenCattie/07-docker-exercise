@@ -1,4 +1,4 @@
 .gradle
 .idea
 .git
-build
+!build/libs/*.jar
