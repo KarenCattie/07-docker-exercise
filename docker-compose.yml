@@ -1,0 +1,33 @@
+services:
+
+  mysql_db:
+    image: mysql
+    container_name: mysql
+    ports:
+      - 3306:3306
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: demo123
+      # (this is just an example, not intended to be a production configuration)
+      MYSQL_DATABASE: docker-project
+      MYSQL_USER: yalin
+      MYSQL_PASSWORD: pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      PMA_HOST: mysql_db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    depends_on:
+      - mysql_db
+
+volumes:
+  mysql_data:
+    driver: local
