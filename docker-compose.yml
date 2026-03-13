@@ -1,17 +1,35 @@
 services:
 
+  myapp:
+    image: 143.198.47.136:8083/myapp:version-1
+    container_name: myapp
+    ports:
+      - 8080:8080
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_SERVER=${DB_SERVER}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      mysql_db:
+          condition: service_healthy
+
   mysql_db:
     image: mysql
     container_name: mysql
     ports:
       - 3306:3306
-    restart: unless-stopped
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: demo123
-      # (this is just an example, not intended to be a production configuration)
-      MYSQL_DATABASE: docker-project
-      MYSQL_USER: yalin
-      MYSQL_PASSWORD: pass
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PWD}
+    healthcheck:
+      test: ["CMD", "mysqladmin","ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -22,9 +40,9 @@ services:
     ports:
       - 8081:80
     environment:
-      PMA_HOST: mysql_db
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
+      - PMA_HOST=${PMA_HOST}
+      - PMA_PORT=${PMA_PORT}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     depends_on:
       - mysql_db
 
